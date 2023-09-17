@@ -15,8 +15,8 @@ from nltk.corpus import stopwords
 from sklearn.datasets import make_multilabel_classification
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline, FeatureUnion
@@ -43,7 +43,7 @@ def load_data(database_filepath):
         
     Requires SQLAlchemy and pandas.
     """
-    engine = create_engine('sqlite:///{database_filepath}')
+    engine = create_engine(f'sqlite:///{database_filepath}')
     with engine.begin() as conn:
         df = pd.read_sql_table('messages_categories',conn)
     X = df.iloc[:,:2]
@@ -115,7 +115,7 @@ def train_model():
     ])
 
     parameters = {
-    'clf__estimator__n_estimators': [100, 150, 200],
+    'clf__estimator__n_estimators': [150,200],
     'clf__estimator__min_samples_split': [3, 4, 8, 10],
     #'clf__estimator__max_depth': [100, 110, 150,None],
     #'vect__ngram_range': ((1, 1), (1, 2)),
@@ -180,7 +180,7 @@ def run_pipeline():
     evaluate_model(predicted, y_test)
 
     print('Export model...\n    MODEL: {}'.format(model_filepath))
-    export_model()
+    export_model(trained_mod.best_estimator_,model_filepath)
 
 
 if __name__ == "__main__":
